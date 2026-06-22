@@ -40,7 +40,7 @@ if [ ! -f server.properties ]; then
     cat > server.properties <<'EOF'
 server-ip=
 server-port=25565
-online-mode=true
+online-mode=false
 white-list=true
 motd=Minecraft server hosted on Render
 view-distance=8
