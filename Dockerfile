@@ -1,7 +1,7 @@
 FROM eclipse-temurin:21-jre-jammy
 
 RUN apt-get update \
-    && apt-get install -y curl ca-certificates \
+    && apt-get install -y curl ca-certificates jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Install the official Playit agent binary
