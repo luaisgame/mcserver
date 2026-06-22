@@ -41,7 +41,7 @@ if [ ! -f server.properties ]; then
 server-ip=
 server-port=25565
 online-mode=false
-white-list=true
+white-list=false
 motd=Minecraft server hosted on Render
 view-distance=8
 simulation-distance=6
