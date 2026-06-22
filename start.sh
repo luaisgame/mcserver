@@ -49,7 +49,7 @@ EOF
 fi
 
 echo "Starting Playit agent..."
-playit > /data/playit.log 2>&1 &
+playit --secret "$SECRET_KEY" > /data/playit.log 2>&1 &
 PLAYIT_PID=$!
 
 echo "Starting Minecraft..."
