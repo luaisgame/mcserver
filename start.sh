@@ -8,55 +8,65 @@ if [ -z "${SECRET_KEY:-}" ]; then
     exit 1
 fi
 
-# Download Paper if server.jar does not exist.
-if [ ! -f server.jar ]; then
-    PAPER_VERSION="${PAPER_VERSION:-1.21.11}"
-    USER_AGENT="render-minecraft-server/1.0 (crimson@luaisgame.com)"
-
-    echo "Finding latest stable Paper build for Minecraft $PAPER_VERSION..."
-
-    PAPER_URL="$(
-        curl -fsSL \
-            -H "User-Agent: $USER_AGENT" \
-            "https://fill.papermc.io/v3/projects/paper/versions/${PAPER_VERSION}/builds" |
-        jq -r 'first(.[] | select(.channel == "STABLE") | .downloads."server:default".url) // empty'
-    )"
-
-    if [ -z "$PAPER_URL" ]; then
-        echo "No stable Paper build found for $PAPER_VERSION."
-        exit 1
-    fi
-
-    curl -fL \
-        -H "User-Agent: $USER_AGENT" \
-        "$PAPER_URL" \
-        -o server.jar
-fi
+MC_VERSION="${MC_VERSION:-1.21.11}"
+FABRIC_INSTALLER_VERSION="${FABRIC_INSTALLER_VERSION:-1.0.1}"
+MAX_RAM="${MAX_RAM:-36G}"
+MIN_RAM="${MIN_RAM:-8G}"
 
 echo "eula=true" > eula.txt
 
-# Never bind server-ip to a Render hostname.
+mkdir -p mods
+
+if [ ! -f fabric-server-launch.jar ]; then
+    echo "Downloading Fabric installer..."
+
+    curl -L \
+        "https://maven.fabricmc.net/net/fabricmc/fabric-installer/${FABRIC_INSTALLER_VERSION}/fabric-installer-${FABRIC_INSTALLER_VERSION}.jar" \
+        -o fabric-installer.jar
+
+    echo "Installing Fabric server..."
+
+    java -jar fabric-installer.jar \
+        server \
+        -mcversion "$MC_VERSION" \
+        -downloadMinecraft
+fi
+
 if [ ! -f server.properties ]; then
     cat > server.properties <<'EOF'
 server-ip=
 server-port=25565
 online-mode=false
-white-list=false
-motd=Minecraft server hosted on Render
-view-distance=8
-simulation-distance=6
+enforce-secure-profile=false
+white-list=true
+motd=Modded Render Server
+view-distance=6
+simulation-distance=4
 EOF
 fi
 
+# Auto-op Enzoe1522 every startup
+cat > ops.json <<'EOF'
+[
+  {
+    "uuid": "",
+    "name": "Enzoe1522",
+    "level": 4,
+    "bypassesPlayerLimit": true
+  }
+]
+EOF
+
 echo "Starting Playit agent..."
-playit --secret "$SECRET_KEY" > /data/playit.log 2>&1 &
+playit --secret "$SECRET_KEY" 2>&1 | tee /data/playit.log &
 PLAYIT_PID=$!
 
-echo "Starting Minecraft..."
+echo "Starting Fabric Minecraft server..."
 java \
-    -Xms"${MIN_RAM:-1G}" \
-    -Xmx"${MAX_RAM:-4G}" \
-    -jar server.jar nogui &
+    -Xms"$MIN_RAM" \
+    -Xmx"$MAX_RAM" \
+    -jar fabric-server-launch.jar \
+    nogui &
 MINECRAFT_PID=$!
 
 cleanup() {
@@ -67,7 +77,6 @@ cleanup() {
 
 trap cleanup SIGTERM SIGINT
 
-# Stop the container if either process crashes.
 wait -n "$PLAYIT_PID" "$MINECRAFT_PID"
 EXIT_CODE=$?
 
