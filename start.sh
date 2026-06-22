@@ -10,13 +10,27 @@ fi
 
 # Download Paper if server.jar does not exist.
 if [ ! -f server.jar ]; then
-    if [ -z "${SERVER_JAR_URL:-}" ]; then
-        echo "ERROR: Add SERVER_JAR_URL or upload server.jar to /data."
+    PAPER_VERSION="${PAPER_VERSION:-1.21.11}"
+    USER_AGENT="render-minecraft-server/1.0 (crimson@luaisgame.com)"
+
+    echo "Finding latest stable Paper build for Minecraft $PAPER_VERSION..."
+
+    PAPER_URL="$(
+        curl -fsSL \
+            -H "User-Agent: $USER_AGENT" \
+            "https://fill.papermc.io/v3/projects/paper/versions/${PAPER_VERSION}/builds" |
+        jq -r 'first(.[] | select(.channel == "STABLE") | .downloads."server:default".url) // empty'
+    )"
+
+    if [ -z "$PAPER_URL" ]; then
+        echo "No stable Paper build found for $PAPER_VERSION."
         exit 1
     fi
 
-    echo "Downloading Minecraft server..."
-    curl -L "$SERVER_JAR_URL" -o server.jar
+    curl -fL \
+        -H "User-Agent: $USER_AGENT" \
+        "$PAPER_URL" \
+        -o server.jar
 fi
 
 echo "eula=true" > eula.txt
