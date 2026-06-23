@@ -45,18 +45,6 @@ simulation-distance=4
 EOF
 fi
 
-# Auto-op Enzoe1522 every startup
-cat > ops.json <<'EOF'
-[
-  {
-    "uuid": "",
-    "name": "Enzoe1522",
-    "level": 4,
-    "bypassesPlayerLimit": true
-  }
-]
-EOF
-
 echo "Starting Playit agent..."
 playit --secret "$SECRET_KEY" 2>&1 | tee /data/playit.log &
 PLAYIT_PID=$!
