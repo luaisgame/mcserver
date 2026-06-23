@@ -38,8 +38,8 @@ server-ip=
 server-port=25565
 online-mode=false
 enforce-secure-profile=false
-white-list=true
-motd=Modded Render Server
+white-list=false
+motd=SMP ig
 view-distance=6
 simulation-distance=4
 EOF
