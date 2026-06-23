@@ -51,6 +51,7 @@ PLAYIT_PID=$!
 
 echo "Starting Fabric Minecraft server..."
 java \
+    -Djava.net.preferIPv4Stack=true \
     -Xms"$MIN_RAM" \
     -Xmx"$MAX_RAM" \
     -jar fabric-server-launch.jar \
