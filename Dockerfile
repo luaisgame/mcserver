@@ -7,10 +7,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Download the Playit Agent
-RUN curl -L https://github.com/playit-cloud/playit-agent/releases/download/v0.17.0/playit-linux-amd64 \
-    -o /usr/local/bin/playit-agent && \
-    chmod +x /usr/local/bin/playit-agent
-
+RUN --rm -it --net=host -e SECRET_KEY=7718d46a114ddac1ff2c517aa50348dbb485f0596850ff2f80aa9bfc19d46b42 ghcr.io/playit-cloud/playit-agent:0.17
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
