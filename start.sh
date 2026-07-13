@@ -1,17 +1,26 @@
-FROM eclipse-temurin:21-jre
+#!/usr/bin/env bash
+set -e
 
-WORKDIR /data
+cd /data
 
-RUN apt-get update && \
-    apt-get install -y curl && \
-    rm -rf /var/lib/apt/lists/*
+echo "Starting Playit..."
+playit --secret "$SECRET_KEY" > /data/playit.log 2>&1 &
+PLAYIT_PID=$!
 
-RUN curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor -o /usr/share/keyrings/playit.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/playit.gpg] https://playit-cloud.github.io/ppa/data ./" > /etc/apt/sources.list.d/playit.list && \
-    apt-get update && \
-    apt-get install -y playit
+echo "Starting Fabric Minecraft server..."
+java \
+  -Xms"${MIN_RAM:-2G}" \
+  -Xmx"${MAX_RAM:-4G}" \
+  -jar fabric-server.jar \
+  nogui &
+MC_PID=$!
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+cleanup() {
+    echo "Stopping..."
+    kill "$PLAYIT_PID" "$MC_PID" 2>/dev/null || true
+    wait || true
+}
 
-CMD ["/start.sh"]
+trap cleanup SIGINT SIGTERM
+
+wait "$MC_PID"
