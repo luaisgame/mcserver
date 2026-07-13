@@ -3,13 +3,13 @@ FROM eclipse-temurin:21-jre
 WORKDIR /data
 
 RUN apt-get update && \
-    apt-get install -y curl unzip && \
+    apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor -o /usr/share/keyrings/playit.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/playit.gpg] https://playit-cloud.github.io/ppa/data ./"> /etc/apt/sources.list.d/playit.list && \
-    apt-get update && \
-    apt-get install -y playit
+# Download the Playit Agent
+RUN curl -L https://github.com/playit-cloud/playit-agent/releases/download/v0.17.0/playit-linux-amd64 \
+    -o /usr/local/bin/playit-agent && \
+    chmod +x /usr/local/bin/playit-agent
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
