@@ -1,27 +1,22 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
 cd /data
 
-if [ -z "${SECRET_KEY:-}" ]; then
-    echo "ERROR: SECRET_KEY is missing."
-    exit 1
-fi
-
-echo "Starting Playit..."
-playit 2>&1 | tee /data/playit.log &
+echo "Starting Playit Agent..."
+/usr/local/bin/playit-agent &
 PLAYIT_PID=$!
 
-echo "Starting Fabric Minecraft server..."
+echo "Starting Minecraft..."
 java \
   -Xms"${MIN_RAM:-2G}" \
   -Xmx"${MAX_RAM:-4G}" \
-  -jar fabric-server.jar \
+  -jar fabric-server-launch.jar \
   nogui &
 MC_PID=$!
 
 cleanup() {
-    echo "Stopping services..."
+    echo "Stopping..."
     kill "$PLAYIT_PID" "$MC_PID" 2>/dev/null || true
     wait || true
 }
