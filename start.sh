@@ -4,7 +4,8 @@ set -e
 cd /data
 
 echo "Starting Playit..."
-playit --secret "$SECRET_KEY" > /data/playit.log 2>&1 &
+playit --version
+playit --secret "$SECRET_KEY" &
 PLAYIT_PID=$!
 
 echo "Starting Fabric Minecraft server..."
