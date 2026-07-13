@@ -1,26 +1,17 @@
-#!/usr/bin/env bash
-set -e
+FROM eclipse-temurin:21-jre
 
-cd /data
+WORKDIR /data
 
-echo "Starting Playit..."
-playit --secret "$SECRET_KEY" 2>&1 | tee /data/playit.log &
-PLAYIT_PID=$!
+RUN apt-get update && \
+    apt-get install -y curl unzip && \
+    rm -rf /var/lib/apt/lists/*
 
-echo "Starting Fabric Minecraft server..."
-java \
-  -Xms"${MIN_RAM:-2G}" \
-  -Xmx"${MAX_RAM:-4G}" \
-  -jar fabric-server-launch.jar \
-  nogui &
-MINECRAFT_PID=$!
+RUN curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor -o /usr/share/keyrings/playit.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/playit.gpg] https://playit-cloud.github.io/ppa/data ./"> /etc/apt/sources.list.d/playit.list && \
+    apt-get update && \
+    apt-get install -y playit
 
-cleanup() {
-    echo "Stopping services..."
-    kill "$PLAYIT_PID" "$MINECRAFT_PID" 2>/dev/null || true
-    wait || true
-}
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
-trap cleanup SIGTERM SIGINT
-
-wait -n "$PLAYIT_PID" "$MINECRAFT_PID"
+CMD ["/start.sh"]
