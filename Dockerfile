@@ -1,16 +1,15 @@
-FROM eclipse-temurin:21-jre-jammy
-
-RUN apt-get update \
-    && apt-get install -y curl ca-certificates jq \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install the official Playit agent binary
-RUN curl -L \
-    https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64 \
-    -o /usr/local/bin/playit \
-    && chmod +x /usr/local/bin/playit
+FROM eclipse-temurin:21-jre
 
 WORKDIR /data
+
+RUN apt-get update && \
+    apt-get install -y curl unzip && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor -o /usr/share/keyrings/playit.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/playit.gpg] https://playit-cloud.github.io/ppa/data ./"> /etc/apt/sources.list.d/playit.list && \
+    apt-get update && \
+    apt-get install -y playit
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
