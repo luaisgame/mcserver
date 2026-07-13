@@ -4,7 +4,6 @@ set -e
 cd /data
 
 echo "Starting Playit..."
-playit --version
 playit --secret "$SECRET_KEY" &
 PLAYIT_PID=$!
 
