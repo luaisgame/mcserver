@@ -16,7 +16,7 @@ echo "Starting Fabric Minecraft server..."
 java \
   -Xms"${MIN_RAM:-2G}" \
   -Xmx"${MAX_RAM:-4G}" \
-  -jar fabric-server-launch.jar \
+  -jar fabric-server.jar \
   nogui &
 MC_PID=$!
 
