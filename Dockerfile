@@ -1,7 +1,3 @@
-#!/usr/bin/env bash
-echo "Temporary placeholder service running."
+FROM eclipse-temurin:21-jre
 
-# Keep the container alive forever
-while true; do
-    sleep 3600
-done
+CMD ["tail", "-f", "/dev/null"]
