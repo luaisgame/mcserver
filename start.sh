@@ -32,8 +32,12 @@ playit --secret "$SECRET_KEY" 2>&1 | tee /data/playit.log &
 PLAYIT_PID=$!
 
 echo "Starting Minecraft servers..."
-java -Xms"$MIN_RAM" -Xmx"$MAX_RAM" -jar mc1/fabric-server.jar nogui &
+
+cd mc1
+java -Xms"$MIN_RAM" -Xmx"$MAX_RAM" -jar fabric-server.jar nogui &
 MINECRAFT_PID=$!
+cd /data/mc2
+java -Xms"$MIN_RAM" -Xmx"$MAX_RAM" -jar forge-server.jar nogui &
 
 cleanup() {
     echo "Stopping services..."
