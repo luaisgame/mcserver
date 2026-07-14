@@ -23,7 +23,7 @@ enforce-secure-profile=false
 white-list=false
 view-distance=6
 simulation-distance=4
-spawn-protection=0
+spawn-protection=1
 EOF
 fi
 
