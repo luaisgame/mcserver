@@ -17,13 +17,13 @@ mkdir -p mods
 if [ ! -f server.properties ]; then
     cat > server.properties <<'EOF'
 server-ip=
-server-port=25565
+allow-flight=true
 online-mode=false
 enforce-secure-profile=false
-white-list=true
-motd=Modded Render Server
+white-list=false
 view-distance=6
 simulation-distance=4
+spawn-protection=0
 EOF
 fi
 
@@ -31,7 +31,7 @@ echo "Starting Playit agent..."
 playit --secret "$SECRET_KEY" 2>&1 | tee /data/playit.log &
 PLAYIT_PID=$!
 
-echo "Starting Fabric Minecraft server..."
+echo "Starting Fabric Minecraft servers..."
 java -Xms"$MIN_RAM" -Xmx"$MAX_RAM" -jar fabric-server.jar nogui &
 MINECRAFT_PID=$!
 
